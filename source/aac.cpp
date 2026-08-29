@@ -52,7 +52,9 @@ std::string AccountCreator::process(std::string request)
 		voc = 0;
 
 		// check if name exists
-	std::ifstream file((g_config.DATA_DIR + "players/" + name + ".xml").c_str());
+	std::string pfile = g_config.DATA_DIR + "players/" + name + ".xml";
+	std::transform(pfile.begin(), pfile.end(), pfile.begin(), (int(*)(int))tolower);
+	std::ifstream file(pfile.c_str());
 	if (file)
 		return "Sorry, name already in use";
 
@@ -103,7 +105,7 @@ long AccountCreator::uniqueAccountNumber()
 		long num = (a + b*RAND_MAX) % ACCNUM_RANGE + ACCNUM_MIN;
 
 		filename.str("");
-		filename << g_config.DATA_DIR << "accounts/" << num << ".xml" << std::ends;
+		filename << g_config.DATA_DIR << "accounts/" << num << ".xml";
 		std::ifstream file(filename.str().c_str());
 
 		if (file)	// account already exists

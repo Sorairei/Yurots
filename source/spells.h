@@ -135,7 +135,7 @@ public:
 	virtual ~SpellScript(){}
   bool castSpell(Creature* creature, const Position& pos, std::string var);
   bool isLoaded(){return loaded;}
-  static Spell* SpellScript::getSpell(lua_State *L);
+  static Spell* getSpell(lua_State *L);
 
 	static int luaActionDoTargetSpell(lua_State *L);
 	static int luaActionDoTargetExSpell(lua_State *L);

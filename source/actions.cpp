@@ -83,7 +83,7 @@ bool Actions::loadFromXml(const std::string &_datadir)
 	datadir = _datadir;
 
 	std::string filename = datadir + "actions/actions.xml";
-	std::transform(filename.begin(), filename.end(), filename.begin(), tolower);
+	std::transform(filename.begin(), filename.end(), filename.begin(), (int(*)(int))tolower);
 	xmlDocPtr doc = xmlParseFile(filename.c_str());
 
 	if (doc){
@@ -454,7 +454,7 @@ _player(NULL)
 	else
 		fclose(in);
 	lua_dofile(luaState, scriptname.c_str());
-	this->setGlobalNumber("addressOfActionScript", (int)this);
+	this->setGlobalNumber("addressOfActionScript", (uintptr_t)this);
 	this->loaded = true;
 	this->registerFunctions();
 }
@@ -716,7 +716,8 @@ int ActionScript::registerFunctions()
 
 ActionScript* ActionScript::getActionScript(lua_State *L){
 	lua_getglobal(L, "addressOfActionScript");
-	int val = (int)internalGetNumber(L);
+	uintptr_t val = (uintptr_t)lua_tonumber(L, -1);
+	lua_pop(L, 1);
 	ActionScript* myaction = (ActionScript*)val;
 	if(!myaction){
 		return 0;

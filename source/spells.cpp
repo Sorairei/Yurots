@@ -46,7 +46,7 @@ bool Spells::loadFromXml(const std::string &datadir)
   this->loaded = false;
 
 	std::string filename = datadir + "spells/spells.xml";
-	std::transform(filename.begin(), filename.end(), filename.begin(), tolower);
+	std::transform(filename.begin(), filename.end(), filename.begin(), (int(*)(int))tolower);
   xmlDocPtr doc = xmlParseFile(filename.c_str());
 
   if (doc){
@@ -89,7 +89,7 @@ bool Spells::loadFromXml(const std::string &datadir)
 					if(nodeValue) {
 						name = nodeValue;
 						xmlFreeOTSERV(nodeValue);
-						std::transform(name.begin(), name.end(), name.begin(), tolower);
+						std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))tolower);
 					}
 
 					nodeValue = (char*)xmlGetProp(p, (const xmlChar *)"words");
@@ -144,7 +144,7 @@ bool Spells::loadFromXml(const std::string &datadir)
 					if(nodeValue) {
 						name = nodeValue;
 						xmlFreeOTSERV(nodeValue);
-						std::transform(name.begin(), name.end(), name.begin(), tolower);
+						std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))tolower);
 					}
 
 					nodeValue = (char*)xmlGetProp(p, (const xmlChar *)"id");
@@ -273,7 +273,7 @@ SpellScript::SpellScript(const std::string &datadir, std::string scriptname, Spe
 	lua_dofile(luaState, scriptname.c_str());
 	this->loaded=true;
 	this->spell=spell;
-	this->setGlobalNumber("addressOfSpell", (int)spell);
+	this->setGlobalNumber("addressOfSpell", (uintptr_t)spell);
 	this->registerFunctions();
 }
 
@@ -331,7 +331,7 @@ bool SpellScript::castSpell(Creature* creature, const Position& pos, std::string
 
 Spell* SpellScript::getSpell(lua_State *L) {
 	lua_getglobal(L, "addressOfSpell");
-	int val = (int)lua_tonumber(L, -1);
+	uintptr_t val = (uintptr_t)lua_tonumber(L, -1);
 	lua_pop(L,1);
 	Spell* myspell = (Spell*)val;
 

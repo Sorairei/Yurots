@@ -47,7 +47,7 @@ Npc::Npc(const std::string& name, Game* game) :
 	this->name = name;
 	std::string datadir = g_config.getGlobalString("datadir");
 	std::string filename = datadir + "npc/" + std::string(name) + ".xml";
-	std::transform(filename.begin(), filename.end(), filename.begin(), tolower);
+	std::transform(filename.begin(), filename.end(), filename.begin(), (int(*)(int))tolower);
 	xmlDocPtr doc = xmlParseFile(filename.c_str());
 	if(doc){
 		this->loaded=true;
@@ -364,7 +364,7 @@ NpcScript::NpcScript(std::string scriptname, Npc* npc){
 	lua_dofile(luaState, scriptname.c_str());
 	this->loaded=true;
 	this->npc=npc;
-	this->setGlobalNumber("addressOfNpc", (int)npc);
+	this->setGlobalNumber("addressOfNpc", (uintptr_t)npc);
 	this->registerFunctions();
 }
 
@@ -497,7 +497,7 @@ int NpcScript::registerFunctions()
 
 Npc* NpcScript::getNpc(lua_State *L){
 	lua_getglobal(L, "addressOfNpc");
-	int val = (int)lua_tonumber(L, -1);
+	uintptr_t val = (uintptr_t)lua_tonumber(L, -1);
 	lua_pop(L,1);
 	Npc* mynpc = (Npc*)val;
 
