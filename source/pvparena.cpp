@@ -21,6 +21,8 @@
 #include "pvparena.h"
 #include "game.h"
 #include "luascript.h"
+#include <cstring>
+#include <algorithm>
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 

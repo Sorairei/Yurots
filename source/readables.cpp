@@ -21,6 +21,7 @@
 #include "readables.h"
 #include "game.h"
 #include "luascript.h"
+#include <cstring>
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 

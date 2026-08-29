@@ -2713,7 +2713,7 @@ void Protocol76::AddCreature(NetworkMessage &msg,const Creature *creature, bool 
 		msg.AddString(creature->getName());
 	}
 
-	msg.AddByte(std::max(1LL, creature->health*100/creature->healthmax));
+	msg.AddByte(std::max<int64_t>(1, creature->health*100/creature->healthmax));
 
 	msg.AddByte((unsigned char)creature->getDirection());
 
@@ -2889,7 +2889,7 @@ void Protocol76::AddCreatureHealth(NetworkMessage &msg,const Creature *creature)
 {
 	msg.AddByte(0x8C);
 	msg.AddU32(creature->getID());
-	msg.AddByte(std::max(1LL, creature->health*100/creature->healthmax));
+	msg.AddByte(std::max<int64_t>(1, creature->health*100/creature->healthmax));
 }
 
 void Protocol76::AddRemoveThing(NetworkMessage &msg, const Position &pos,unsigned char stackpos){
