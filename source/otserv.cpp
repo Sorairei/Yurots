@@ -464,6 +464,8 @@ void ErrorMessage(const char* message) {
   std::cin >> s;
 }
 
+static void xmlQuietErrorFunc(void*, const char*, ...) {}
+
 int main(int argc, char *argv[])
 {
 #ifdef __OTSERV_ALLOCATOR_STATS__
@@ -510,8 +512,6 @@ int main(int argc, char *argv[])
 
 //	LOG_MESSAGE("main", EVENT, 1, "Starting server");
 
-
-static void xmlQuietErrorFunc(void*, const char*, ...) {}
 
 	// suppress noisy libxml2 stderr I/O warnings
 	xmlSetGenericErrorFunc(NULL, (xmlGenericErrorFunc)xmlQuietErrorFunc);
