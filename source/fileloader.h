@@ -166,14 +166,8 @@ public:
 	inline bool GET_USHORT(uint16_t &ret){
 		return GET_VALUE(ret);
 	}
-	inline bool GET_USHORT(unsigned short &ret){
-		return GET_VALUE(ret);
-	}
 	
 	inline bool GET_UCHAR(uint8_t &ret){
-		return GET_VALUE(ret);
-	}
-	inline bool GET_UCHAR(unsigned char &ret){
 		return GET_VALUE(ret);
 	}
 	
