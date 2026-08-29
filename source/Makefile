@@ -112,12 +112,12 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	@printf "\033[1;33m[ LINK ]\033[0m \033[1;37m%s\033[0m\n" "$(TARGET)"
 	@$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
-	@printf "\033[1;32m[  OK  ]\033[0m \033[1;32mCompilación completada exitosamente -> %s\033[0m\n" "$(TARGET)"
+	@printf "\033[1;32m[  OK  ]\033[0m \033[1;32mBuild completed successfully -> %s\033[0m\n" "$(TARGET)"
 
 %.o: %.cpp
 	@printf "\033[1;36m[ CXX  ]\033[0m %s\n" "$<"
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	@printf "\033[1;33m[ CLEAN ]\033[0m Limpiando archivos objeto y binarios...\n"
+	@printf "\033[1;33m[ CLEAN ]\033[0m Cleaning object files and binary...\n"
 	@rm -f $(OBJS) $(TARGET)

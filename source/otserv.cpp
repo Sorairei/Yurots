@@ -810,7 +810,22 @@ int main(int argc, char *argv[])
 		std::cout << "WARNING: Change your IP in config.lua!\n" << std::endl;
 #endif //YUR_CVS_MODS
 
-	IpNetMask.first  = inet_addr(ip.c_str());
+	unsigned long resolved_ip = inet_addr(ip.c_str());
+	if (resolved_ip == INADDR_NONE) {
+		struct hostent* he = gethostbyname(ip.c_str());
+		if (he != NULL && he->h_addr_list[0] != NULL) {
+			resolved_ip = *(unsigned long*)he->h_addr_list[0];
+			struct in_addr in;
+			in.s_addr = resolved_ip;
+			std::cout << ":: Resolved domain " << ip << " -> " << inet_ntoa(in) << std::endl;
+		}
+		else {
+			std::cout << ":: WARNING: Could not resolve hostname " << ip << "! Defaulting to 127.0.0.1" << std::endl;
+			resolved_ip = inet_addr("127.0.0.1");
+		}
+	}
+
+	IpNetMask.first  = resolved_ip;
 	IpNetMask.second = 0;
 	serverIPs.push_back(IpNetMask);
 	std::cout << ":: Starting Server... ";

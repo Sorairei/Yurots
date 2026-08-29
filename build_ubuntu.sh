@@ -10,15 +10,15 @@ C_BLUE="\033[1;34m"
 C_WHITE="\033[1;37m"
 
 echo -e "${C_CYAN}==========================================================${C_RESET}"
-echo -e "${C_WHITE} YurOTS 0.9.4f - Script de Compilación para Ubuntu Linux  ${C_RESET}"
+echo -e "${C_WHITE}   YurOTS 0.9.4f - Build Script for Ubuntu Linux          ${C_RESET}"
 echo -e "${C_CYAN}==========================================================${C_RESET}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ARCH=$(uname -m)
-echo -e "${C_YELLOW}[1/4]${C_RESET} Detectando arquitectura: ${C_WHITE}$ARCH${C_RESET}..."
+echo -e "${C_YELLOW}[1/4]${C_RESET} Detecting architecture: ${C_WHITE}$ARCH${C_RESET}..."
 
-echo -e "${C_YELLOW}[2/4]${C_RESET} Verificando dependencias del sistema..."
+echo -e "${C_YELLOW}[2/4]${C_RESET} Verifying system dependencies..."
 sudo apt-get update -qq
 sudo apt-get install -y -qq \
     build-essential \
@@ -32,9 +32,9 @@ sudo apt-get install -y -qq \
     wget \
     tar > /dev/null
 
-echo -e "${C_YELLOW}[3/4]${C_RESET} Verificando biblioteca Lua 5.0.3..."
+echo -e "${C_YELLOW}[3/4]${C_RESET} Verifying Lua 5.0.3 library..."
 if [ ! -f "/usr/local/lib/liblua.a" ] || [ ! -f "/usr/local/include/lua.h" ]; then
-    echo -e "      ${C_BLUE}--> Compilando Lua 5.0.3 desde código fuente...${C_RESET}"
+    echo -e "      ${C_BLUE}--> Compiling Lua 5.0.3 from source...${C_RESET}"
     TMP_DIR=$(mktemp -d)
     (
         cd "$TMP_DIR"
@@ -49,29 +49,29 @@ if [ ! -f "/usr/local/lib/liblua.a" ] || [ ! -f "/usr/local/include/lua.h" ]; th
         sudo ldconfig || true
     )
     rm -rf "$TMP_DIR"
-    echo -e "      ${C_GREEN}[OK] Lua 5.0.3 instalado con éxito en /usr/local.${C_RESET}"
+    echo -e "      ${C_GREEN}[OK] Lua 5.0.3 successfully installed in /usr/local.${C_RESET}"
 else
-    echo -e "      ${C_GREEN}[OK] Lua 5.0.3 ya está instalado en el sistema.${C_RESET}"
+    echo -e "      ${C_GREEN}[OK] Lua 5.0.3 is already installed on the system.${C_RESET}"
 fi
 
-# Navegar a la carpeta source del servidor
+# Navigate to source directory
 cd "$SCRIPT_DIR/source"
 
-echo -e "${C_YELLOW}[4/4]${C_RESET} Compilando módulos de YurOTS..."
+echo -e "${C_YELLOW}[4/4]${C_RESET} Compiling YurOTS modules..."
 make clean
 make -j"$(nproc)"
 
 if [ -f "$SCRIPT_DIR/yurots" ]; then
     chmod +x "$SCRIPT_DIR/yurots"
     echo -e "${C_GREEN}==========================================================${C_RESET}"
-    echo -e "${C_GREEN} [OK] ¡Compilación exitosa! Binario: ${C_WHITE}$SCRIPT_DIR/yurots${C_RESET}"
-    echo -e " Para iniciar el servidor:"
+    echo -e "${C_GREEN} [OK] Build successful! Binary: ${C_WHITE}$SCRIPT_DIR/yurots${C_RESET}"
+    echo -e " To start the server:"
     echo -e "   ${C_CYAN}cd $SCRIPT_DIR${C_RESET}"
     echo -e "   ${C_CYAN}./yurots${C_RESET}"
     echo -e "${C_GREEN}==========================================================${C_RESET}"
 else
     echo -e "\033[1;31m==========================================================\033[0m"
-    echo -e "\033[1;31m [ERROR] Falló la compilación del binario.\033[0m"
+    echo -e "\033[1;31m [ERROR] Binary compilation failed.\033[0m"
     echo -e "\033[1;31m==========================================================\033[0m"
     exit 1
 fi
