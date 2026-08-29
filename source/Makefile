@@ -1,5 +1,6 @@
 CXX = g++
-CXXFLAGS = -std=gnu++98 -O2 -w -fpermissive \
+CXXFLAGS = -std=gnu++11 -O2 -w -fpermissive \
+           -DBOOST_BIND_GLOBAL_PLACEHOLDERS \
            -I. -I/usr/local/include -I/usr/include/libxml2 \
            -DTLM_BUY_SELL \
            -DTLM_SERVER_SAVE \

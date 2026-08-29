@@ -22,6 +22,8 @@
 #ifndef __OTSERV_TOOLS_H
 #define __OTSERV_TOOLS_H
 
+#include <string>
+#include "definitions.h"
 
 bool fileExists(char* filename);
 int64_t random_range(int64_t lowest_number, int64_t highest_number);

@@ -22,7 +22,9 @@
 #define __OTSERV_FILELOADER_H__
 
 #include <string>
-#include "stdio.h"
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
 
 typedef unsigned long NODE;
 
