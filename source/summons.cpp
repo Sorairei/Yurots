@@ -20,9 +20,10 @@
 #ifdef TR_SUMMONS
 #include "summons.h"
 #include "luascript.h"
+#include <cstring>
+#include <algorithm>
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
-#include <algorithm>
 
 extern LuaScript g_config;
 

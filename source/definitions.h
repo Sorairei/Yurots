@@ -62,6 +62,10 @@ typedef unsigned char uint8_t;
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <math.h>
+
 typedef int64_t __int64;
 
 #ifndef _atoi64
