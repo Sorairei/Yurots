@@ -5,6 +5,8 @@ echo "=========================================================="
 echo " YurOTS 0.9.4f - Script de Compilación para Ubuntu Linux  "
 echo "=========================================================="
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 ARCH=$(uname -m)
 echo "[1/4] Detectando arquitectura: $ARCH..."
 
@@ -26,24 +28,25 @@ echo "[3/4] Verificando e instalando biblioteca Lua 5.0.3..."
 if [ ! -f "/usr/local/lib/liblua.a" ] || [ ! -f "/usr/local/include/lua.h" ]; then
     echo "Compilando Lua 5.0.3 desde código fuente..."
     TMP_DIR=$(mktemp -d)
-    cd "$TMP_DIR"
-    wget -q https://www.lua.org/ftp/lua-5.0.3.tar.gz
-    tar -zxf lua-5.0.3.tar.gz
-    cd lua-5.0.3
-    make MYCFLAGS="-fPIC -O2"
-    sudo mkdir -p /usr/local/include /usr/local/lib
-    sudo cp include/*.h /usr/local/include/
-    sudo cp lib/liblua.a /usr/local/lib/
-    sudo cp lib/liblualib.a /usr/local/lib/
-    sudo ldconfig || true
+    (
+        cd "$TMP_DIR"
+        wget -q https://www.lua.org/ftp/lua-5.0.3.tar.gz
+        tar -zxf lua-5.0.3.tar.gz
+        cd lua-5.0.3
+        make MYCFLAGS="-fPIC -O2"
+        sudo mkdir -p /usr/local/include /usr/local/lib
+        sudo cp include/*.h /usr/local/include/
+        sudo cp lib/liblua.a /usr/local/lib/
+        sudo cp lib/liblualib.a /usr/local/lib/
+        sudo ldconfig || true
+    )
     rm -rf "$TMP_DIR"
     echo "Lua 5.0.3 instalado con éxito en /usr/local."
 else
     echo "Lua 5.0.3 ya está instalado en el sistema."
 fi
 
-# Regresar a la carpeta del servidor
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Navegar a la carpeta source del servidor
 cd "$SCRIPT_DIR/source"
 
 echo "[4/4] Compilando YurOTS..."
