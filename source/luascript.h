@@ -23,6 +23,7 @@
 #define __LUASCRIPT_H__
 
 #include <string>
+#include "definitions.h"
 extern "C"
 {
 #include <lua.h>

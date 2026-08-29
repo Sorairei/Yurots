@@ -21,6 +21,7 @@
 
 #ifndef SUMMONS_H
 #define SUMMONS_H
+#include "definitions.h"
 #include <string>
 #include <map>
 
