@@ -12,7 +12,7 @@
 
 ## [ Overview ]
 
-**YurOTS 0.9.4f Modernized Edition** is an upgraded, high-performance C++ OpenTibia server designed for **Tibia 7.6 / OTClientV8**. Originally developed by Yurez in 2006, this edition has been thoroughly refactored and modernized for **Linux 64-bit (x86_64 / ARM64)** platforms, including Ubuntu 22.04/24.04 LTS, Debian 11/12, and cloud hosting (Oracle Cloud Ampere ARM64, AWS Graviton, DigitalOcean).
+**YurOTS 0.9.4f Modernized Edition** is an upgraded, high-performance C++ OpenTibia server designed for **Tibia 7.6 / OTClientV8**, based on the [divinity76/YurOTS](https://github.com/divinity76/YurOTS) upstream repository and originally developed by Yurez in 2006. This edition has been thoroughly refactored and modernized for **Linux 64-bit (x86_64 / ARM64)** platforms, including Ubuntu 22.04/24.04 LTS, Debian 11/12, and cloud hosting (Oracle Cloud Ampere ARM64, AWS Graviton, DigitalOcean).
 
 ---
 
@@ -169,5 +169,6 @@ Yurots/
 ## [ License & Credits ]
 
 * **Original Authors:** Yurez, OpenTibia Core Team, CVS Contributors (2006).
+* **Base Upstream Repository:** [divinity76/YurOTS](https://github.com/divinity76/YurOTS)
 * **Modernization & 64-bit Linux Port:** Sorairei (2026).
 * **License:** GNU General Public License v2 (GPLv2). See `docs/license.txt`.
