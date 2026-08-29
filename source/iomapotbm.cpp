@@ -406,7 +406,7 @@ Item* IOMapOTBM::unserializaItemNode(FileLoader* f, NODE node)
 						container->addItem(item);
 					}
 					else{
-						return false;
+						return NULL;
 					}
 				}
 				item_node = f->getNextNode(item_node, type);
