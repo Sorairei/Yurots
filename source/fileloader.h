@@ -156,12 +156,24 @@ public:
 	inline bool GET_ULONG(uint32_t &ret){
 		return GET_VALUE(ret);
 	}
+	inline bool GET_ULONG(unsigned long &ret){
+		uint32_t val;
+		if(!GET_VALUE(val)) return false;
+		ret = val;
+		return true;
+	}
 	
 	inline bool GET_USHORT(uint16_t &ret){
 		return GET_VALUE(ret);
 	}
+	inline bool GET_USHORT(unsigned short &ret){
+		return GET_VALUE(ret);
+	}
 	
 	inline bool GET_UCHAR(uint8_t &ret){
+		return GET_VALUE(ret);
+	}
+	inline bool GET_UCHAR(unsigned char &ret){
 		return GET_VALUE(ret);
 	}
 	

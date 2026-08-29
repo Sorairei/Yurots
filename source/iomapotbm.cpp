@@ -206,7 +206,7 @@ bool IOMapOTBM::loadMap(Map* map, std::string identifier)
 						while(propStream.GET_UCHAR(attribute)){
 							switch(attribute){
 							case OTBM_ATTR_TILE_FLAGS:
-								unsigned long flags;
+								flags_t flags;
 								if(!propStream.GET_ULONG(flags)){
 									return false;
 								}
