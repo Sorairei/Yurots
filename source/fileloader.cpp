@@ -477,7 +477,8 @@ long FileLoader::loadCacheBlock(unsigned long pos)
 	}
 	if(loading_cache == -1){
 		for(i = 0; i < CACHE_BLOCKS; i++){
-			if((unsigned long)abs(m_cached_data[i].base - base_pos) > 2*m_cache_size){
+			long diff = (long)m_cached_data[i].base - (long)base_pos;
+			if((unsigned long)(diff < 0 ? -diff : diff) > 2*m_cache_size){
 				loading_cache = i;
 				break;
 			}
