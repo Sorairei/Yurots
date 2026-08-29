@@ -18,6 +18,8 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
+#include "definitions.h"
+#include "tools.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/timeb.h>
@@ -66,94 +68,16 @@ void hexdump(unsigned char *_data, int _len) {
             fprintf(stderr, "   ");
         fprintf(stderr, " ");
         for (i = 0; i < 16 && i < _len; i++)
-            fprintf(stderr, "%c", (_data[i] & 0x70) < 32 ? '·' : _data[i]);
+            fprintf(stderr, "%c", (_data[i] & 0x70) < 32 ? '?' : _data[i]);
         fprintf(stderr, "\n");
     }
 }
-
-#if 0
-//////////////////////////////////////////////////
-// Enable asynchronous function calls.
-// This function does not wait for return of the called function;
-// instead, this function returns immediately.
-// The called function must be of type void *fn(void *).
-// You can use the pointer to the function for anything you want to.
-// Return: a thread handle.
-pthread_t *detach(void *(*_fn)(void *), void *_arg) {
-    pthread_t *thread = new pthread_t();
-    if (pthread_create(thread, NULL, _fn, _arg))
-        perror("pthread");
-    return thread;
-}
-#endif
 
 //////////////////////////////////////////////////
 // Upcase a char.
 char upchar(char c) {
     if (c >= 'a' && c <= 'z')
         return c - 'a' + 'A';
-    else if (c == 'à')
-        return 'À';
-    else if (c == 'á')
-        return 'Á';
-    else if (c == 'â')
-        return 'Â';
-    else if (c == 'ã')
-        return 'Ã';
-    else if (c == 'ä')
-        return 'Ä';
-    else if (c == 'å')
-        return 'Å';
-    else if (c == 'æ')
-        return 'Æ';
-    else if (c == 'ç')
-        return 'Ç';
-    else if (c == 'è')
-        return 'È';
-    else if (c == 'é')
-        return 'É';
-    else if (c == 'ê')
-        return 'Ê';
-    else if (c == 'ë')
-        return 'Ë';
-    else if (c == 'ì')
-        return 'Ì';
-    else if (c == 'í')
-        return 'Í';
-    else if (c == 'î')
-        return 'Î';
-    else if (c == 'ï')
-        return 'Ï';
-    else if (c == 'ð')
-        return 'Ð';
-    else if (c == 'ñ')
-        return 'Ñ';
-    else if (c == 'ò')
-        return 'Ò';
-    else if (c == 'ó')
-        return 'Ó';
-    else if (c == 'ô')
-        return 'Ô';
-    else if (c == 'õ')
-        return 'Õ';
-    else if (c == 'ö')
-        return 'Ö';
-    else if (c == 'ø')
-        return 'Ø';
-    else if (c == 'ù')
-        return 'Ù';
-    else if (c == 'ú')
-        return 'Ú';
-    else if (c == 'û')
-        return 'Û';
-    else if (c == 'ü')
-        return 'Ü';
-    else if (c == 'ý')
-        return 'Ý';
-    else if (c == 'þ')
-        return 'Þ';
-    else if (c == 'ÿ')
-        return 'ß';
     else
         return c;
 }
@@ -186,6 +110,7 @@ int safe_atoi(const char* str)
 double timer()
 {
 	static bool running = false;
+#if defined(WIN32) || defined(__WINDOWS__)
 	static _timeb start, end;
 
 	if (!running)
@@ -208,6 +133,22 @@ double timer()
 		running = false;
 		return (end.time-start.time)+(end.millitm-start.millitm)/1000.0;
 	}
+#else
+	static struct timeb start, end;
+
+	if (!running)
+	{
+		ftime(&start);
+		running = true;
+		return 0.0;
+	}
+	else
+	{
+		ftime(&end);
+		running = false;
+		return (end.time-start.time)+(end.millitm-start.millitm)/1000.0;
+	}
+#endif
 }
 
 std::string article(const std::string& name)
@@ -247,8 +188,11 @@ std::string str(int32_t value)
 		return buf;
 	else
 		return "";
-#else
+#elif defined(WIN32) || defined(__WINDOWS__)
 	return ltoa(value, buf, 10);
+#else
+	snprintf(buf, sizeof(buf), "%d", (int)value);
+	return buf;
 #endif //USING_VISUAL_2005
 }
 
@@ -260,8 +204,11 @@ std::string str(uint32_t value)
 		return buf;
 	else
 		return "";
-#else
+#elif defined(WIN32) || defined(__WINDOWS__)
 	return _ultoa(value, buf, 10);
+#else
+	snprintf(buf, sizeof(buf), "%u", (unsigned int)value);
+	return buf;
 #endif //USING_VISUAL_2005
 }
 
@@ -273,10 +220,14 @@ std::string str(int64_t value)
 		return buf;
 	else
 		return "";
-#else
+#elif defined(WIN32) || defined(__WINDOWS__)
 	return _i64toa(value, buf, 10);
+#else
+	snprintf(buf, sizeof(buf), "%lld", (long long)value);
+	return buf;
 #endif //USING_VISUAL_2005
 }
+
 std::string str(uint64_t value)
 {
 	char buf[128];
@@ -285,7 +236,10 @@ std::string str(uint64_t value)
 		return buf;
 	else
 		return "";
-#else
+#elif defined(WIN32) || defined(__WINDOWS__)
 	return _ui64toa(value, buf, 10);
+#else
+	snprintf(buf, sizeof(buf), "%llu", (unsigned long long)value);
+	return buf;
 #endif //USING_VISUAL_2005
 }
