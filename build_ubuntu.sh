@@ -30,7 +30,8 @@ if [ ! -f "/usr/local/lib/liblua.a" ] || [ ! -f "/usr/local/include/lua.h" ]; th
     wget -q https://www.lua.org/ftp/lua-5.0.3.tar.gz
     tar -zxf lua-5.0.3.tar.gz
     cd lua-5.0.3
-    make posix
+    make MYCFLAGS="-fPIC -O2"
+    sudo mkdir -p /usr/local/include /usr/local/lib
     sudo cp include/*.h /usr/local/include/
     sudo cp lib/liblua.a /usr/local/lib/
     sudo cp lib/liblualib.a /usr/local/lib/

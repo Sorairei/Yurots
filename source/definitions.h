@@ -24,8 +24,6 @@
 
 
 
-typedef unsigned long long uint64_t;
-
 #ifdef XML_GCC_FREE
 #define xmlFreeOTSERV(s)	free(s)
 #else
@@ -33,6 +31,8 @@ typedef unsigned long long uint64_t;
 #endif
 
 #if defined __WINDOWS__ || defined WIN32
+
+typedef unsigned long long uint64_t;
 
 #define OTSYS_THREAD_RETURN  void
 
