@@ -110,10 +110,14 @@ TARGET = ../yurots
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
+	@printf "\033[1;33m[ LINK ]\033[0m \033[1;37m%s\033[0m\n" "$(TARGET)"
+	@$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
+	@printf "\033[1;32m[  OK  ]\033[0m \033[1;32mCompilación completada exitosamente -> %s\033[0m\n" "$(TARGET)"
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	@printf "\033[1;36m[ CXX  ]\033[0m %s\n" "$<"
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	@printf "\033[1;33m[ CLEAN ]\033[0m Limpiando archivos objeto y binarios...\n"
+	@rm -f $(OBJS) $(TARGET)

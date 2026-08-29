@@ -511,8 +511,10 @@ int main(int argc, char *argv[])
 //	LOG_MESSAGE("main", EVENT, 1, "Starting server");
 
 
+static void xmlQuietErrorFunc(void*, const char*, ...) {}
+
 	// suppress noisy libxml2 stderr I/O warnings
-	xmlSetGenericErrorFunc(NULL, (xmlGenericErrorFunc)[](void*, const char*, ...){});
+	xmlSetGenericErrorFunc(NULL, (xmlGenericErrorFunc)xmlQuietErrorFunc);
 
 	// random numbers generator
 	std::cout << ":: Initializing random numbers...   ";
