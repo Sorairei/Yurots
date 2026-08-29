@@ -1,24 +1,48 @@
 #!/usr/bin/env bash
 set -e
 
-# Colores ANSI
+# ANSI Colors
 C_RESET="\033[0m"
 C_CYAN="\033[1;36m"
 C_GREEN="\033[1;32m"
 C_YELLOW="\033[1;33m"
 C_BLUE="\033[1;34m"
 C_WHITE="\033[1;37m"
+C_MAGENTA="\033[1;35m"
 
 echo -e "${C_CYAN}==========================================================${C_RESET}"
-echo -e "${C_WHITE}   YurOTS 0.9.4f - Build Script for Ubuntu Linux          ${C_RESET}"
+echo -e "${C_WHITE}   YurOTS 0.9.4f - Auto-Detecting Build System            ${C_RESET}"
 echo -e "${C_CYAN}==========================================================${C_RESET}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-ARCH=$(uname -m)
-echo -e "${C_YELLOW}[1/4]${C_RESET} Detecting architecture: ${C_WHITE}$ARCH${C_RESET}..."
+# 1. Automatic OS and Architecture Detection
+OS_NAME="Linux"
+OS_VERSION=""
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS_NAME="${PRETTY_NAME:-$NAME}"
+fi
 
-echo -e "${C_YELLOW}[2/4]${C_RESET} Verifying system dependencies..."
+ARCH=$(uname -m)
+case "$ARCH" in
+    x86_64)      ARCH_DESC="x86_64 / AMD64 (Intel/AMD 64-bit)" ;;
+    aarch64|arm64) ARCH_DESC="aarch64 / ARM64 (Oracle Cloud Ampere / AWS Graviton / Pi 4/5)" ;;
+    armv7l|armv6l) ARCH_DESC="armhf / ARM 32-bit" ;;
+    i686|i386)   ARCH_DESC="x86 / 32-bit Intel" ;;
+    *)           ARCH_DESC="$ARCH" ;;
+esac
+
+CPU_CORES=$(nproc 2>/dev/null || echo 1)
+TOTAL_RAM_MB=$(free -m 2>/dev/null | awk '/^Mem:/{print $2}' || echo "Unknown")
+
+echo -e "${C_YELLOW}[1/4]${C_RESET} Detecting system environment:"
+echo -e "      ${C_BLUE}--> OS:${C_RESET}           ${C_WHITE}$OS_NAME${C_RESET}"
+echo -e "      ${C_BLUE}--> Architecture:${C_RESET} ${C_WHITE}$ARCH_DESC${C_RESET}"
+echo -e "      ${C_BLUE}--> CPU Cores:${C_RESET}    ${C_WHITE}$CPU_CORES thread(s)${C_RESET}"
+echo -e "      ${C_BLUE}--> Total RAM:${C_RESET}    ${C_WHITE}${TOTAL_RAM_MB} MB${C_RESET}"
+
+echo -e "\n${C_YELLOW}[2/4]${C_RESET} Verifying system dependencies..."
 sudo apt-get update -qq
 sudo apt-get install -y -qq \
     build-essential \
