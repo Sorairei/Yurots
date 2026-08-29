@@ -61,7 +61,12 @@ typedef unsigned char uint8_t;
 #define OTSYS_THREAD_RETURN void*
 
 #include <stdint.h>
+#include <stdlib.h>
 typedef int64_t __int64;
+
+#ifndef _atoi64
+#define _atoi64(a) atoll(a)
+#endif
 
 #endif
 

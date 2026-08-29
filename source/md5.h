@@ -54,7 +54,8 @@
 
 /* Typedef a 32 bit type */
 #ifndef UINT4
-typedef unsigned long int UINT4;
+#include <stdint.h>
+typedef uint32_t UINT4;
 #endif
 
 /* Data structure for MD5 (Message Digest) computation */

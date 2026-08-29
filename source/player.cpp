@@ -30,6 +30,7 @@
 using namespace std;
 
 #include <stdlib.h>
+#include <cmath>
 #include <time.h>       /* time_t, struct tm, difftime, time, mktime */
 
 #include "protocol.h"

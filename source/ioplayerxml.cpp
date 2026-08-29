@@ -101,7 +101,7 @@ bool IOPlayerXML::loadPlayer(Player* player, std::string name){
 		nodeValue = (char*)xmlGetProp(root, (const xmlChar *) "exp");
 		if(nodeValue) {
 #ifdef YUR_HIGH_LEVELS
-			player->experience=_atoi64(nodeValue);
+			player->experience=atoll(nodeValue);
 #else
 			player->experience=atoi(nodeValue);
 #endif //YUR_HIGH_LEVELS
