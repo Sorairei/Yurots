@@ -542,7 +542,7 @@ int main(int argc, char *argv[])
 	std::cout << "[done]" << std::endl;
 
 	//load actions data
-	std::cout << ":: Loading actions.xml...           ";
+	std::cout << ":: Loading actions.xml...           " << std::flush;
 	if(!actions.loadFromXml(g_config.getGlobalString("datadir")))
 	{
 		ErrorMessage("Unable to load actions.xml!");
@@ -551,7 +551,7 @@ int main(int argc, char *argv[])
 	std::cout << "[done]" << std::endl;
 
 	//load commands data
-	std::cout << ":: Loading commands.xml...          ";
+	std::cout << ":: Loading commands.xml...          " << std::flush;
 	if(!commands.loadXml(g_config.getGlobalString("datadir")))
 	{
 		ErrorMessage("Unable to load commands.xml!");
@@ -560,7 +560,7 @@ int main(int argc, char *argv[])
 	std::cout << "[done]" << std::endl;
 
 	// load item data
-	std::cout << ":: Loading items.otb...             ";
+	std::cout << ":: Loading items.otb...             " << std::flush;
 	if (Item::items.loadFromOtb(g_config.getGlobalString("datadir") + "items/items.otb"))
 	{
 		ErrorMessage("Could not load items.otb!");
@@ -568,7 +568,7 @@ int main(int argc, char *argv[])
 	}
 	std::cout << "[done]" << std::endl;
 
-	std::cout << ":: Loading items.xml...             ";
+	std::cout << ":: Loading items.xml...             " << std::flush;
 	if (!Item::items.loadXMLInfos(g_config.getGlobalString("datadir") + "items/items.xml"))
 	{
 		ErrorMessage("Could not load /items/items.xml ...!");
@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
 
 
 #ifdef YUR_GUILD_SYSTEM
-	std::cout << ":: Loading guilds.xml...            ";
+	std::cout << ":: Loading guilds.xml...            " << std::flush;
 	if (!Guilds::Load())
 	{
 		ErrorMessage("Could not load guilds.xml!");
@@ -588,7 +588,7 @@ int main(int argc, char *argv[])
 #endif //YUR_GUILD_SYSTEM
 
 #ifdef YUR_LOGIN_QUEUE
-	std::cout << ":: Loading queue.xml...             ";
+	std::cout << ":: Loading queue.xml...             " << std::flush;
 	if (!g_game.loginQueue.load())
 	{
 		ErrorMessage("Could not load queue.xml!");
@@ -598,7 +598,7 @@ int main(int argc, char *argv[])
 #endif //YUR_LOGIN_QUEUE
 
 #ifdef TR_SUMMONS
-	std::cout << ":: Loading summons.xml...           ";
+	std::cout << ":: Loading summons.xml...           " << std::flush;
 	if (!Summons::Load())
 	{
 		ErrorMessage("Could not load summons.xml!");
@@ -608,7 +608,7 @@ int main(int argc, char *argv[])
 #endif //TR_SUMMONS
 
 	// load monster data
-	std::cout << ":: Loading monsters.xml...          ";
+	std::cout << ":: Loading monsters.xml...          " << std::flush;
 	if(!g_monsters.loadFromXml(g_config.getGlobalString("datadir")))
 	{
 		ErrorMessage("Could not load monsters/monsters.xml!");
