@@ -47,8 +47,12 @@ Npc::Npc(const std::string& name, Game* game) :
 	this->name = name;
 	std::string datadir = g_config.getGlobalString("datadir");
 	std::string filename = datadir + "npc/" + std::string(name) + ".xml";
-	std::transform(filename.begin(), filename.end(), filename.begin(), (int(*)(int))tolower);
-	xmlDocPtr doc = xmlParseFile(filename.c_str());
+	std::string filenamelower = filename;
+	std::transform(filenamelower.begin(), filenamelower.end(), filenamelower.begin(), (int(*)(int))tolower);
+	xmlDocPtr doc = xmlParseFile(filenamelower.c_str());
+	if(!doc){
+		doc = xmlParseFile(filename.c_str());
+	}
 	if(doc){
 		this->loaded=true;
 		xmlNodePtr root, p;
