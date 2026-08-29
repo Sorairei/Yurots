@@ -26,8 +26,8 @@
 #include "fileloader.h"
 #include "game.h"
 
-typedef unsigned char attribute_t;
-typedef unsigned long flags_t;
+typedef uint8_t attribute_t;
+typedef uint32_t flags_t;
 
 enum tile_flags_t{
 	TILE_PZ = 1,
@@ -65,11 +65,11 @@ enum OTBM_AttrTypes_t{
 #pragma pack(1)
 
 struct OTBM_root_header{
-	unsigned long version;
-	unsigned short width;
-	unsigned short height;
-	unsigned long majorVersionItems;
-	unsigned long minorVersionItems;
+	uint32_t version;
+	uint16_t width;
+	uint16_t height;
+	uint32_t majorVersionItems;
+	uint32_t minorVersionItems;
 };
 
 struct OTBM_TeleportDest{

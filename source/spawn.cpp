@@ -100,7 +100,7 @@ bool SpawnManager::loadSpawnsXML(std::string filename)
 					xmlFreeOTSERV(nodeValue);
 				}
 				else {
-					xmlFreeOTSERV(nodeValue);
+					xmlFreeDoc(doc);
 					return false;
 				}
 
@@ -110,7 +110,6 @@ bool SpawnManager::loadSpawnsXML(std::string filename)
 					xmlFreeOTSERV(nodeValue);
 				}
 				else {
-					xmlFreeOTSERV(nodeValue);
 					xmlFreeDoc(doc);
 					return false;
 				}
@@ -121,7 +120,6 @@ bool SpawnManager::loadSpawnsXML(std::string filename)
 					xmlFreeOTSERV(nodeValue);
 				}
 				else {
-					xmlFreeOTSERV(nodeValue);
 					xmlFreeDoc(doc);
 					return false;
 				}
@@ -132,7 +130,6 @@ bool SpawnManager::loadSpawnsXML(std::string filename)
 					xmlFreeOTSERV(nodeValue);
 				}
 				else {
-					xmlFreeOTSERV(nodeValue);
 					xmlFreeDoc(doc);
 					return false;
 				}

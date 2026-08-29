@@ -165,9 +165,9 @@ public:
 	
 	static unsigned long reverseLookUp(unsigned long id);
 	
-	static long dwMajorVersion;
-	static long dwMinorVersion;
-	static long dwBuildNumber;
+	static uint32_t dwMajorVersion;
+	static uint32_t dwMinorVersion;
+	static uint32_t dwBuildNumber;
 	
 protected:
 	#ifdef __GNUC__

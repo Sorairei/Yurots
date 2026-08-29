@@ -23,9 +23,9 @@
 
 #include "fileloader.h"
 
-typedef unsigned char attribute_t;
-typedef unsigned short datasize_t;
-typedef unsigned long flags_t;
+typedef uint8_t attribute_t;
+typedef uint16_t datasize_t;
+typedef uint32_t flags_t;
 
 enum itemgroup_t{
 	ITEM_GROUP_NONE = 0,
@@ -186,9 +186,9 @@ struct lightBlock{
 #pragma pack(1)
 
 struct VERSIONINFO{
-	unsigned long dwMajorVersion;
-	unsigned long dwMinorVersion;
-	unsigned long dwBuildNumber;
+	uint32_t dwMajorVersion;
+	uint32_t dwMinorVersion;
+	uint32_t dwBuildNumber;
 	char CSDVersion[128];
 };
 

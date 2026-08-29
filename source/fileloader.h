@@ -21,6 +21,7 @@
 #ifndef __OTSERV_FILELOADER_H__
 #define __OTSERV_FILELOADER_H__
 
+#include "definitions.h"
 #include <string>
 #include <cstring>
 #include <cstdlib>
@@ -152,33 +153,27 @@ public:
 		return true;
 	}
 	
-	inline bool GET_ULONG(unsigned long &ret){
+	inline bool GET_ULONG(uint32_t &ret){
 		return GET_VALUE(ret);
 	}
 	
-	inline bool GET_USHORT(unsigned short &ret){
+	inline bool GET_USHORT(uint16_t &ret){
 		return GET_VALUE(ret);
 	}
 	
-	inline bool GET_UCHAR(unsigned char &ret){
+	inline bool GET_UCHAR(uint8_t &ret){
 		return GET_VALUE(ret);
 	}
 	
 	inline bool GET_STRING(std::string &ret){
-		char* str;
-		unsigned short str_len;
-		
+		uint16_t str_len;
 		if(!GET_USHORT(str_len)){
 			return false;
 		}
 		if(size() < str_len){
 			return false;
 		}
-		str = new char[str_len+1];
-		memcpy(str, p, str_len);
-		str[str_len] = 0;
-		ret = str;
-		delete str;
+		ret.assign(p, str_len);
 		p = p + str_len;
 		return true;
 	}

@@ -33,9 +33,9 @@ extern LuaScript g_config;
 
 extern Spells spells;
 
-long Items::dwMajorVersion = 0;
-long Items::dwMinorVersion = 0;
-long Items::dwBuildNumber = 0;
+uint32_t Items::dwMajorVersion = 0;
+uint32_t Items::dwMinorVersion = 0;
+uint32_t Items::dwBuildNumber = 0;
 
 ItemType::ItemType()
 {
@@ -240,7 +240,7 @@ int Items::loadFromOtb(std::string file)
 		//4 byte flags
 		//attributes
 		//0x01 = version data
-		unsigned long flags;
+		uint32_t flags;
 		if(!props.GET_ULONG(flags)){
 			return ERROR_INVALID_FORMAT;
 		}
