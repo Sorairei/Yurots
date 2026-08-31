@@ -60,7 +60,16 @@ bool IOPlayerXML::loadPlayer(Player* player, std::string name){
 		p = root->children;
 
 		nodeValue = (char*)xmlGetProp(root, (const xmlChar *) "account");
-		int account = atoi(nodeValue);
+		int account = 0;
+		if (nodeValue) {
+			account = atoi(nodeValue);
+			xmlFreeOTSERV(nodeValue);
+		}
+		else {
+			xmlFreeDoc(doc);
+			xmlMutexUnlock(xmlmutex);
+			return false;
+		}
 
 		//need to unlock and relock in order to load xml account (both share the same mutex)
 		xmlMutexUnlock(xmlmutex);
@@ -74,13 +83,7 @@ bool IOPlayerXML::loadPlayer(Player* player, std::string name){
 		  return false;
 		}
 
-		nodeValue = (char*)xmlGetProp(root, (const xmlChar *) "account");
-		if(nodeValue) {
-			player->accountNumber = atoi(nodeValue);
-			xmlFreeOTSERV(nodeValue);
-		}
-		else
-			isLoaded = false;
+		player->accountNumber = account;
 
 		nodeValue = (char*)xmlGetProp(root, (const xmlChar *) "sex");
 		if(nodeValue) {
@@ -723,9 +726,13 @@ bool IOPlayerXML::SaveContainer(xmlNodePtr nodeitem,Container* ccontainer)
 
 
 bool IOPlayerXML::savePlayer(Player* player){
+	if (!player)
+		return false;
+
 	std::string datadir = g_config.getGlobalString("datadir");
 	std::string filename = datadir + "players/" + player->getName() + ".xml";
 	std::transform (filename.begin(),filename.end(), filename.begin(), tolower);
+	std::string tempFilename = filename + ".tmp";
     std::stringstream sb;
 
     xmlDocPtr doc;
@@ -907,33 +914,40 @@ bool IOPlayerXML::savePlayer(Player* player){
 	}
     xmlAddChild(root, sn);
 
-	//Save the character
-    if (xmlSaveFile(filename.c_str(), doc))
-       {
-       #ifdef __DEBUG__
-       std::cout << "\tSaved character succefully!\n";
-       #endif
-       xmlFreeDoc(doc);
-       xmlMutexUnlock(xmlmutex);
+	//Save the character to temporary file, then atomically replace
+	int saveRes = xmlSaveFile(tempFilename.c_str(), doc);
+	xmlFreeDoc(doc);
+	xmlMutexUnlock(xmlmutex);
+
+	if (saveRes >= 0)
+	{
+#if defined WIN32 || defined __WINDOWS__
+		remove(filename.c_str());
+#endif
+		if (rename(tempFilename.c_str(), filename.c_str()) == 0)
+		{
+#ifdef __DEBUG__
+			std::cout << "\tSaved character successfully!\n";
+#endif
 #ifdef ELEM_VIP_LIST
-	   return SaveVIP(player);
+			return SaveVIP(player);
 #else
-	   return true;
+			return true;
 #endif //ELEM_VIP_LIST
-       }
-    else
-       {
-       std::cout << "\tCouldn't save character =(\n";
-       xmlFreeDoc(doc);
-       xmlMutexUnlock(xmlmutex);
-	   return false;
-       }
+		}
+	}
+
+	std::cout << "\tCouldn't save character =(\n";
+	return false;
 }
 
 
 #ifdef ELEM_VIP_LIST
 bool IOPlayerXML::LoadVIP(Player* player)
 {
+	if (!player)
+		return false;
+
 	std::string datadir = g_config.getGlobalString("datadir");
 	std::stringstream filename;
 	filename << datadir << "vip/" << player->accountNumber << ".xml";
@@ -956,10 +970,15 @@ bool IOPlayerXML::LoadVIP(Player* player)
 		std::cout << "Strange. Player-VIP was no savefile for " << player->getName() << std::endl;
 
 	vipNode = root->children;
-	while (vipNode)
+	while (vipNode && i < MAX_VIPS)
 	{
-		if (strcmp((char*)vipNode->name, "vip") == 0)
-			player->vip[i++] = (const char*)xmlGetProp(vipNode, (const xmlChar *)"name");
+		if (strcmp((char*)vipNode->name, "vip") == 0) {
+			char* vipProp = (char*)xmlGetProp(vipNode, (const xmlChar *)"name");
+			if (vipProp) {
+				player->vip[i++] = vipProp;
+				xmlFreeOTSERV(vipProp);
+			}
+		}
 		vipNode = vipNode->next;
 	}
 

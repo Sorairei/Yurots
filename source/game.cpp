@@ -1363,6 +1363,14 @@ bool Game::onPrepareMoveThing(Player* player,
 				player->sendCancel("This is impossible.");
 				return false;
 			}
+			const Container* parentCheck = toContainer;
+			while(parentCheck) {
+				if(parentCheck == itemContainer) {
+					player->sendCancel("This is impossible.");
+					return false;
+				}
+				parentCheck = parentCheck->getParent();
+			}
 		}
 
 		double itemWeight = (fromItem->isStackable() ? Item::items[fromItem->getID()].weight * std::max(1, count) : fromItem->getWeight());
@@ -4507,14 +4515,19 @@ void Game::playerAcceptTrade(Player* player)
 {
 	OTSYS_THREAD_LOCK_CLASS lockClass(gameLock, "Game::playerAcceptTrade()");
 
-	if(player->isRemoved)
+	if(!player || player->isRemoved)
 		return;
 
 	player->setAcceptTrade(true);
 	Player *tradePartner = getPlayerByID(player->tradePartner);
-	if(tradePartner && tradePartner->getAcceptTrade()) {
+	if(tradePartner && !tradePartner->isRemoved && tradePartner->getAcceptTrade()) {
 		Item *tradeItem1 = player->tradeItem;
 		Item *tradeItem2 = tradePartner->tradeItem;
+
+		if(!tradeItem1 || !tradeItem2) {
+			playerCloseTrade(player);
+			return;
+		}
 
 		player->sendCloseTrade();
 		tradePartner->sendCloseTrade();
@@ -4532,8 +4545,8 @@ void Game::playerAcceptTrade(Player* player)
 			tradePartner->addItem(tradeItem1);
 		}
 		else{
-			player->sendTextMessage(MSG_SMALLINFO, "Sorry not possible.");
-			tradePartner->sendTextMessage(MSG_SMALLINFO, "Sorry not possible.");
+			player->sendTextMessage(MSG_SMALLINFO, "Sorry, not possible.");
+			tradePartner->sendTextMessage(MSG_SMALLINFO, "Sorry, not possible.");
 		}
 
 		std::map<Item*, unsigned long>::iterator it;
@@ -4619,6 +4632,9 @@ void Game::playerLookInTrade(Player* player, bool lookAtCounterOffer, int index)
 void Game::playerCloseTrade(Player* player)
 {
 	OTSYS_THREAD_LOCK_CLASS lockClass(gameLock, "Game::playerCloseTrade()");
+
+	if(!player)
+		return;
 
 	Player* tradePartner = getPlayerByID(player->tradePartner);
 

@@ -513,16 +513,17 @@ Npc* NpcScript::getNpc(lua_State *L){
 
 int NpcScript::luaCreatureGetName2(lua_State *L){
 	const char* s = lua_tostring(L, -1);
+	std::string s_str = s ? s : "";
 	lua_pop(L,1);
 	Npc* mynpc = getNpc(L);
-	Creature *c = mynpc->game->getCreatureByName(std::string(s));
-
-	if(c && c->access < g_config.ACCESS_PROTECT) {
-		lua_pushnumber(L, c->getID());
+	if (mynpc && mynpc->game) {
+		Creature *c = mynpc->game->getCreatureByName(s_str);
+		if(c && c->access < g_config.ACCESS_PROTECT) {
+			lua_pushnumber(L, c->getID());
+			return 1;
+		}
 	}
-	else
-		lua_pushnumber(L, 0);
-
+	lua_pushnumber(L, 0);
 	return 1;
 }
 
@@ -530,7 +531,14 @@ int NpcScript::luaCreatureGetName(lua_State *L){
 	int id = (int)lua_tonumber(L, -1);
 	lua_pop(L,1);
 	Npc* mynpc = getNpc(L);
-	lua_pushstring(L, mynpc->game->getCreatureByID(id)->getName().c_str());
+	if (mynpc && mynpc->game) {
+		Creature* c = mynpc->game->getCreatureByID(id);
+		if (c) {
+			lua_pushstring(L, c->getName().c_str());
+			return 1;
+		}
+	}
+	lua_pushstring(L, "");
 	return 1;
 }
 
@@ -538,7 +546,7 @@ int NpcScript::luaCreatureGetPos(lua_State *L){
 	int id = (int)lua_tonumber(L, -1);
 	lua_pop(L,1);
 	Npc* mynpc = getNpc(L);
-	Creature* c = mynpc->game->getCreatureByID(id);
+	Creature* c = (mynpc && mynpc->game) ? mynpc->game->getCreatureByID(id) : NULL;
 
 	if(!c){
 		lua_pushnil(L);
@@ -556,6 +564,12 @@ int NpcScript::luaCreatureGetPos(lua_State *L){
 int NpcScript::luaSelfGetPos(lua_State *L){
 	lua_pop(L,1);
 	Npc* mynpc = getNpc(L);
+	if (!mynpc) {
+		lua_pushnil(L);
+		lua_pushnil(L);
+		lua_pushnil(L);
+		return 3;
+	}
 	lua_pushnumber(L, mynpc->pos.x);
 	lua_pushnumber(L, mynpc->pos.y);
 	lua_pushnumber(L, mynpc->pos.z);
@@ -563,11 +577,14 @@ int NpcScript::luaSelfGetPos(lua_State *L){
 }
 
 int NpcScript::luaActionSay(lua_State* L){
+	const char* s = lua_tostring(L, -1);
+	if (!s) {
+		lua_pop(L, 1);
+		return 0;
+	}
 	int len = (uint32_t)lua_strlen(L, -1);
-	std::string msg(lua_tostring(L, -1), len);
+	std::string msg(s, len);
 	lua_pop(L,1);
-	//now, we got the message, we now have to find out
-	//what npc this belongs to
 
 	Npc* mynpc=getNpc(L);
 	if(mynpc)

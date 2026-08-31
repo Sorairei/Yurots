@@ -56,31 +56,62 @@ bool House::load()
 		tmp = root->children;
 		while (tmp)
 		{
+			char* propVal = NULL;
 			if (!strcmp((const char*)tmp->name, "frontdoor"))
 			{
-				frontDoor.x = atoi((const char*)xmlGetProp(tmp, (const xmlChar *)"x"));
-				frontDoor.y = atoi((const char*)xmlGetProp(tmp, (const xmlChar *)"y"));
-				frontDoor.z = atoi((const char*)xmlGetProp(tmp, (const xmlChar *)"z"));
+				if ((propVal = (char*)xmlGetProp(tmp, (const xmlChar*)"x"))) {
+					frontDoor.x = atoi(propVal);
+					xmlFreeOTSERV(propVal);
+				}
+				if ((propVal = (char*)xmlGetProp(tmp, (const xmlChar*)"y"))) {
+					frontDoor.y = atoi(propVal);
+					xmlFreeOTSERV(propVal);
+				}
+				if ((propVal = (char*)xmlGetProp(tmp, (const xmlChar*)"z"))) {
+					frontDoor.z = atoi(propVal);
+					xmlFreeOTSERV(propVal);
+				}
 			}
 			else if (!strcmp((const char*)tmp->name, "owner"))
 			{
-				owner = (const char*)xmlGetProp(tmp, (const xmlChar *)"name");
+				if ((propVal = (char*)xmlGetProp(tmp, (const xmlChar*)"name"))) {
+					owner = propVal;
+					xmlFreeOTSERV(propVal);
+				}
 			}
 			else if (!strcmp((const char*)tmp->name, "subowner"))
 			{
-				subOwners.push_back((const char*)xmlGetProp(tmp, (const xmlChar *)"name"));
+				if ((propVal = (char*)xmlGetProp(tmp, (const xmlChar*)"name"))) {
+					subOwners.push_back(propVal);
+					xmlFreeOTSERV(propVal);
+				}
 			}
 			else if (!strcmp((const char*)tmp->name, "guest"))
 			{
-				guests.push_back((const char*)xmlGetProp(tmp, (const xmlChar *)"name"));
+				if ((propVal = (char*)xmlGetProp(tmp, (const xmlChar*)"name"))) {
+					guests.push_back(propVal);
+					xmlFreeOTSERV(propVal);
+				}
 			}
 			else if (!strcmp((const char*)tmp->name, "doorowner"))
 			{
 				Position pos;
-				pos.x = atoi((const char*)xmlGetProp(tmp, (const xmlChar *)"x"));
-				pos.y = atoi((const char*)xmlGetProp(tmp, (const xmlChar *)"y"));
-				pos.z = atoi((const char*)xmlGetProp(tmp, (const xmlChar *)"z"));
-				doorOwners[pos].push_back((const char*)xmlGetProp(tmp, (const xmlChar *)"name"));
+				if ((propVal = (char*)xmlGetProp(tmp, (const xmlChar*)"x"))) {
+					pos.x = atoi(propVal);
+					xmlFreeOTSERV(propVal);
+				}
+				if ((propVal = (char*)xmlGetProp(tmp, (const xmlChar*)"y"))) {
+					pos.y = atoi(propVal);
+					xmlFreeOTSERV(propVal);
+				}
+				if ((propVal = (char*)xmlGetProp(tmp, (const xmlChar*)"z"))) {
+					pos.z = atoi(propVal);
+					xmlFreeOTSERV(propVal);
+				}
+				if ((propVal = (char*)xmlGetProp(tmp, (const xmlChar*)"name"))) {
+					doorOwners[pos].push_back(propVal);
+					xmlFreeOTSERV(propVal);
+				}
 			}
 			tmp = tmp->next;
 		}

@@ -2337,67 +2337,66 @@ bool Player::removeItem(int itemid, int count)
 			Container *container = dynamic_cast<Container*>(item);
 			if (item->getID() == itemid)
 			{
-				if (item->isStackable() && item->getItemCountOrSubtype()-count > 1)
+				if (item->isStackable() && (int)item->getItemCountOrSubtype() - count > 0)
 				{
-					item->setItemCountOrSubtype(item->getItemCountOrSubtype()-count);
+					item->setItemCountOrSubtype(item->getItemCountOrSubtype() - count);
 					count = 0;
 				}
-				else if(item->isStackable() && item->getItemCountOrSubtype()-count <= 0)
+				else if (item->isStackable())
 				{
 					count -= item->getItemCountOrSubtype();
 					items[slot] = NULL;
+					g_game.FreeThing(item);
 				}
 				else
 				{
 					items[slot] = NULL;
-					count = 0;
+					g_game.FreeThing(item);
+					count--;
 				}
 				sendInventory(slot);
 			}
 			else if (container)
-               count = removeContainerItem(container, itemid, count);
+				count = removeContainerItem(container, itemid, count);
 		}
 	}
 
-	if (count <= 0)
-		return true;
-	else
-		return false;
+	return (count <= 0);
 }
 
 signed long Player::removeContainerItem(Container* container, int itemid, int count)
 {
-   for(int number = 0; number < container->size(); number++){
-       if (count > 0){
-           Item *item = container->getItem(number);
-           Container *subcontainer = dynamic_cast<Container*>(item);
-           if (item->getID() == itemid){
-               if (item->isStackable() && item->getItemCountOrSubtype()-count > 0){
-                   item->setItemCountOrSubtype(item->getItemCountOrSubtype()-count);
-                   onItemUpdateContainer(container, item, number);
-                   count = 0;
-               }
-               else if(item->isStackable() && item->getItemCountOrSubtype()-count <= 0){
-                   count -= item->getItemCountOrSubtype();
-                   container->removeItem(item);
-                   onItemRemoveContainer(container, number);
-                   number--;
-               }
-               else{
-                   container->removeItem(item);
-                   onItemRemoveContainer(container, number);
-                   count = 0;
-            }
-           }
-           else if(subcontainer){
-               count = removeContainerItem(subcontainer, itemid, count);
-           }
-       }
-       else{
-           return count;
-       }
-   }
-   return count;
+	for (int number = 0; number < container->size() && count > 0; number++) {
+		Item *item = container->getItem(number);
+		if (!item)
+			continue;
+		Container *subcontainer = dynamic_cast<Container*>(item);
+		if (item->getID() == itemid) {
+			if (item->isStackable() && (int)item->getItemCountOrSubtype() - count > 0) {
+				item->setItemCountOrSubtype(item->getItemCountOrSubtype() - count);
+				onItemUpdateContainer(container, item, number);
+				count = 0;
+			}
+			else if (item->isStackable()) {
+				count -= item->getItemCountOrSubtype();
+				container->removeItem(item);
+				onItemRemoveContainer(container, number);
+				g_game.FreeThing(item);
+				number--;
+			}
+			else {
+				container->removeItem(item);
+				onItemRemoveContainer(container, number);
+				g_game.FreeThing(item);
+				count--;
+				number--;
+			}
+		}
+		else if (subcontainer) {
+			count = removeContainerItem(subcontainer, itemid, count);
+		}
+	}
+	return count;
 }
 
 void Player::payBack(unsigned long cost)
@@ -2424,6 +2423,9 @@ void Player::payBack(unsigned long cost)
 void Player::TLMaddItem(int itemid, unsigned char count)
 {
 	Item *item = Item::CreateItem(itemid, count);
+	if(!item)
+		return;
+
 	if(!items[1] && item->getSlotPosition() & SLOTP_HEAD)
 		addItemInventory(item, 1);
 	else if(!items[2] && item->getSlotPosition() & SLOTP_NECKLACE)
@@ -2445,38 +2447,44 @@ void Player::TLMaddItem(int itemid, unsigned char count)
 	else if(!items[10])
 		addItemInventory(item, 10);
 	else{
-       for(int slot = 1; slot <= 10; slot++){
-          Container *container = dynamic_cast<Container*>(items[slot]);
-          if (container && container->size() < container->capacity()){
-                 container->addItem(item);
-                 onItemAddContainer(container,item);
-                 return;
-         }
-     }
-       Tile *playerTile = g_game.getTile(pos.x, pos.y, pos.z);
-	   if (item->isStackable()){
-           Item *toItem = dynamic_cast<Item*>(playerTile->getThingByStackPos(playerTile->getThingCount() - 1));
-           if (toItem){
-               if (item->getID() == toItem->getID()){
-                   if (toItem->getItemCountOrSubtype()+item->getItemCountOrSubtype() <= 100){
-                       toItem->setItemCountOrSubtype(toItem->getItemCountOrSubtype()+item->getItemCountOrSubtype());
-                   }
-                   else{
-                       int oldcount = toItem->getItemCountOrSubtype();
-                       toItem->setItemCountOrSubtype(100);
-                       playerTile->addThing(Item::CreateItem(item->getID(), 100-oldcount));
-                   }
-               }
-           }
-           else{
-               playerTile->addThing(item);
-           }
-       }
-       else{
-           playerTile->addThing(item);
-	   }
-	   item->pos =  pos;
-	   g_game.sendAddThing(this, pos, item);
+		for(int slot = 1; slot <= 10; slot++){
+			Container *container = dynamic_cast<Container*>(items[slot]);
+			if (container && container->size() < container->capacity()){
+				container->addItem(item);
+				onItemAddContainer(container, item);
+				return;
+			}
+		}
+		Tile *playerTile = g_game.getTile(pos.x, pos.y, pos.z);
+		if(!playerTile) {
+			g_game.FreeThing(item);
+			return;
+		}
+
+		if (item->isStackable()){
+			Item *toItem = dynamic_cast<Item*>(playerTile->getThingByStackPos(playerTile->getThingCount() - 1));
+			if (toItem && toItem->getID() == item->getID()){
+				int total = toItem->getItemCountOrSubtype() + item->getItemCountOrSubtype();
+				if (total <= 100){
+					toItem->setItemCountOrSubtype(total);
+					g_game.FreeThing(item);
+					return;
+				}
+				else{
+					toItem->setItemCountOrSubtype(100);
+					item->setItemCountOrSubtype(total - 100);
+					playerTile->addThing(item);
+				}
+			}
+			else{
+				playerTile->addThing(item);
+			}
+		}
+		else{
+			playerTile->addThing(item);
+		}
+		item->pos = pos;
+		g_game.sendAddThing(this, pos, item);
 	}
 }
 #endif //TLM_BUY_SELL

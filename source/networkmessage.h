@@ -90,6 +90,9 @@ protected:
   inline bool canAdd(int size){
     return (size + m_ReadPos < NETWORKMESSAGE_MAXSIZE - 16);
   };
+  inline bool canRead(int size) const {
+    return (m_ReadPos + size <= m_MsgSize);
+  };
   int m_MsgSize;
   int m_ReadPos;
 

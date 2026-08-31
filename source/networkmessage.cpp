@@ -58,40 +58,49 @@ void NetworkMessage::Reset()
 
 bool NetworkMessage::ReadFromSocket(SOCKET socket)
 {
-	// just read the size to avoid reading 2 messages at once
-	m_MsgSize = recv(socket, (char*)m_MsgBuf, 2, 0);
-	
-	// for now we expect 2 bytes at once, it should not be splitted
-	int datasize = m_MsgBuf[0] | m_MsgBuf[1] << 8;
-	if((m_MsgSize != 2) || (datasize > NETWORKMESSAGE_MAXSIZE-2)){
-		int errnum;
+	// read the 2-byte header (payload length)
+	int readBytes = 0;
+	while (readBytes < 2) {
+		int b = recv(socket, (char*)m_MsgBuf + readBytes, 2 - readBytes, 0);
+		if (b <= 0) {
 #if defined WIN32 || defined __WINDOWS__
-		errnum = ::WSAGetLastError();
-		if(errnum == EWOULDBLOCK){
-			m_MsgSize = 0;
-			return true;
-		}
+			int errnum = ::WSAGetLastError();
+			if (errnum == EWOULDBLOCK && readBytes == 0) {
+				m_MsgSize = 0;
+				return true;
+			}
 #else
-		errnum = errno;
+			int errnum = errno;
+			if ((errnum == EWOULDBLOCK || errnum == EAGAIN) && readBytes == 0) {
+				m_MsgSize = 0;
+				return true;
+			}
 #endif
+			Reset();
+			return false;
+		}
+		readBytes += b;
+	}
 
+	int datasize = (int)(m_MsgBuf[0] | (m_MsgBuf[1] << 8));
+	if (datasize <= 0 || datasize > NETWORKMESSAGE_MAXSIZE - 2) {
 		Reset();
 		return false;
 	}
 
 	// read the real data
-	m_MsgSize += recv(socket, (char*)m_MsgBuf+2, datasize, 0);
-
-	// we got something unexpected/incomplete
-	if ((m_MsgSize <= 2) || ((m_MsgBuf[0] | m_MsgBuf[1] << 8) != m_MsgSize-2))
-	{
-		Reset();
-		return false;
+	readBytes = 0;
+	while (readBytes < datasize) {
+		int b = recv(socket, (char*)m_MsgBuf + 2 + readBytes, datasize - readBytes, 0);
+		if (b <= 0) {
+			Reset();
+			return false;
+		}
+		readBytes += b;
 	}
 
-	// ok, ...reading starts after the size
+	m_MsgSize = datasize + 2;
 	m_ReadPos = 2;
-
 	return true;
 }
 
@@ -155,12 +164,16 @@ bool NetworkMessage::WriteToSocket(SOCKET socket)
 
 unsigned char NetworkMessage::GetByte()
 {
+  if (!canRead(1))
+    return 0;
   return m_MsgBuf[m_ReadPos++];
 }
 
 
 unsigned short NetworkMessage::GetU16()
 {
+  if (!canRead(2))
+    return 0;
   unsigned short v = ((m_MsgBuf[m_ReadPos]) | (m_MsgBuf[m_ReadPos+1] << 8));
   m_ReadPos += 2;
   return v;
@@ -174,6 +187,8 @@ unsigned short NetworkMessage::GetItemId()
 
 unsigned int NetworkMessage::GetU32()
 {
+  if (!canRead(4))
+    return 0;
   unsigned int v = ((m_MsgBuf[m_ReadPos  ]      ) | (m_MsgBuf[m_ReadPos+1] <<  8) |
                     (m_MsgBuf[m_ReadPos+2] << 16) | (m_MsgBuf[m_ReadPos+3] << 24));
   m_ReadPos += 4;
@@ -183,8 +198,10 @@ unsigned int NetworkMessage::GetU32()
 
 std::string NetworkMessage::GetString()
 {
+  if (!canRead(2))
+    return std::string();
   int stringlen = GetU16();
-  if (stringlen >= (16384 - m_ReadPos))
+  if (stringlen < 0 || !canRead(stringlen) || stringlen > 8192)
 	  return std::string();
 
   char* v = (char*)(m_MsgBuf+m_ReadPos);
@@ -193,8 +210,10 @@ std::string NetworkMessage::GetString()
 }
 
 std::string NetworkMessage::GetRaw(){
-  int stringlen = m_MsgSize- m_ReadPos;
-  if (stringlen >= (16384 - m_ReadPos))
+  if (m_ReadPos >= m_MsgSize)
+    return std::string();
+  int stringlen = m_MsgSize - m_ReadPos;
+  if (stringlen < 0 || !canRead(stringlen) || stringlen > 8192)
 	  return std::string();
 
   char* v = (char*)(m_MsgBuf+m_ReadPos);
@@ -213,7 +232,10 @@ Position NetworkMessage::GetPosition() {
 
 void NetworkMessage::SkipBytes(int count)
 {
-  m_ReadPos += count;
+  if (count > 0 && canRead(count))
+    m_ReadPos += count;
+  else if (count > 0)
+    m_ReadPos = m_MsgSize;
 }
 
 
@@ -259,15 +281,13 @@ void NetworkMessage::AddString(const std::string &value)
 
 void NetworkMessage::AddString(const char* value)
 {
+  if (!value)
+    return;
   unsigned long stringlen = (unsigned long) strlen(value);
   if(!canAdd(stringlen+2) || stringlen > 8192)
     return;
   AddU16((unsigned short)stringlen);
-#ifdef USING_VISUAL_2005
-  strcpy_s((char*)m_MsgBuf + m_ReadPos, sizeof(m_MsgBuf)-m_ReadPos-1, value);
-#else
-  strcpy((char*)m_MsgBuf + m_ReadPos, value);
-#endif //USING_VISUAL_2005
+  memcpy(m_MsgBuf + m_ReadPos, value, stringlen);
   m_ReadPos += stringlen;
   m_MsgSize += stringlen;
 }

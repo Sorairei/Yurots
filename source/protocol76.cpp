@@ -1147,8 +1147,11 @@ void Protocol76::parseUseItem(NetworkMessage &msg)
 	unsigned char stack = msg.GetByte();
 	unsigned char index = msg.GetByte();
 
+	if (index > 0x0F)
+		return;
+
 #ifdef __DEBUG__
-	std::cout << "parseUseItem: " << "x: " << pos.x << ", y: " << (int)pos.y <<  ", z: " << (int)pos.z << ", item: " << (int)item << ", stack: " << (int)stack << ", index: " << (int)index << std::endl;
+	std::cout << "parseUseItem: " << "x: " << pos.x << ", y: " << (int)pos.y <<  ", z: " << (int)pos.z << ", item: " << (int)itemid << ", stack: " << (int)stack << ", index: " << (int)index << std::endl;
 #endif
 
 	game->playerUseItem(player, pos, stack, itemid, index);
@@ -1157,6 +1160,8 @@ void Protocol76::parseUseItem(NetworkMessage &msg)
 void Protocol76::parseCloseContainer(NetworkMessage &msg)
 {
 	unsigned char containerid = msg.GetByte();
+	if (containerid > 0x0F)
+		return;
 	player->closeContainer(containerid);
 	sendCloseContainer(containerid);
 }
@@ -1164,6 +1169,8 @@ void Protocol76::parseCloseContainer(NetworkMessage &msg)
 void Protocol76::parseUpArrowContainer(NetworkMessage &msg)
 {
 	unsigned char containerid = msg.GetByte();
+	if (containerid > 0x0F)
+		return;
 	OTSYS_THREAD_LOCK_CLASS lockClass(game->gameLock, "Protocol76::parseUpArrowContainer()");
 	Container *container = player->getContainer(containerid);
 	if(!container)
@@ -1186,12 +1193,17 @@ void Protocol76::parseThrow(NetworkMessage &msg)
 	unsigned short to_y       = msg.GetU16();
 	unsigned char  to_z       = msg.GetByte();
 	unsigned char count       = msg.GetByte();
-	/*
-	std::cout << "parseThrow: " << "from_x: " << (int)from_x << ", from_y: " << (int)from_y
-	<<  ", from_z: " << (int)from_z << ", item: " << (int)itemid << ", from_stack: "
-	<< (int)from_stack << " to_x: " << (int)to_x << ", to_y: " << (int)to_y
-	<<  ", to_z: " << (int)to_z
-	<< ", count: " << (int)count << std::endl;*/
+
+	if (count == 0)
+		count = 1;
+	if (count > 100)
+		count = 100;
+
+	if (from_x != 0xFFFF && (from_z >= MAP_LAYER))
+		return;
+	if (to_x != 0xFFFF && (to_z >= MAP_LAYER))
+		return;
+
 	bool toInventory = false;
 	bool fromInventory = false;
 
