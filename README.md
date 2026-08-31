@@ -21,11 +21,39 @@
 | Category | Feature | Description |
 | :--- | :--- | :--- |
 | **64-bit Binary Safety** | LP64 Struct Alignment | Fixed `uint32_t` width serialization for `items.otb` and `test.otbm` to eliminate memory desynchronization and buffer corruption. |
+| **Anti-Duplication** | Atomic Transactions & Math | Atomic trade validation, cyclic container recursion prevention, fixed stackable arithmetic, and atomic `.tmp` player saving. |
+| **Network Hardening** | Buffer Bounds & TCP Streams | Strict `canRead()` bounds checking in `NetworkMessage`, safe `memcpy` string writes, and fragmented TCP packet streaming. |
+| **Crash Protection** | Full Null-Safety Guards | Complete null-pointer protection in NPC dialogue callbacks, item movements, and XML property readers. |
+| **Memory Management** | Leaks & glibc Protection | Remediation of `libxml2` `xmlChar*` allocation leaks, item entity lifecycle deallocation (`FreeThing`), and glibc tcache protection. |
 | **Dynamic DNS** | No-IP / Hostname Resolution | Built-in `gethostbyname` DNS resolution allowing domains (e.g. `your-server.ddns.net`) directly in `config.lua`. |
-| **Memory Management** | glibc tcache Protection | Complete elimination of double-free bugs, mismatched array `delete[]` operators, and invalid XML pointer frees. |
 | **Linux Case Sensitivity** | ext4 Path Normalization | Fully unified lowercase path resolution and intelligent fallback for all NPC, player, and monster XML files. |
 | **Build Automation** | Auto-Detecting Pipeline | Intelligent multi-threaded compilation script with ANSI colors, CPU thread detection (`nproc`), and RAM monitoring. |
 | **Lua Engine** | Native Lua 5.0.3 Stack | Automated on-demand build of Lua 5.0.3 with `-fPIC -O2` flags for modern Linux linkers. |
+
+---
+
+## [ Security, Anti-Dupe & Engine Hardening ]
+
+* **Anti-Duplication Engine (*Anti-Dupe*):**
+  * **Atomic Trade System:** Synchronized transaction verification in `Game::playerAcceptTrade` and `playerCloseTrade` preventing race conditions, item loss, or ghost clones.
+  * **Cyclic Container Loop Blocker:** Hierarchical parent-chain traversal in `Game::onPrepareMoveThing` stopping players from nesting backpacks within themselves or their sub-containers.
+  * **Stackable Items Arithmetic:** Fixed boundary conditions in `Player::removeItem` (preventing deletion of the final remaining unit) and corrected ground-stack arithmetic in `Player::TLMaddItem`.
+  * **Atomic Player Persistence:** `IOPlayerXML::savePlayer` writes to an isolated `.xml.tmp` file and performs an atomic POSIX rename, completely eliminating 0-byte corruptions and crash-induced rollback dupes.
+
+* **Network & Protocol Protection:**
+  * **Buffer Bounds Safety:** Hardened `NetworkMessage` with `canRead()` checks across all getters to block out-of-bounds reads from truncated packets.
+  * **TCP Streaming Framing:** Handled fragmented network streams in `ReadFromSocket` to prevent packet framing desync.
+  * **Safe String Serialization:** Replaced unsafe `strcpy` with bounded `memcpy` in `NetworkMessage::AddString`.
+  * **Opcode & Parameter Sanitization:** Strict container ID bounds (`0..15`), coordinate boundaries, and throw count limits (1 to 100).
+
+* **Null-Safety & Crash Prevention:**
+  * Added null pointer guards across all NPC Lua callbacks (`luaCreatureGetName`, `luaCreatureGetPos`, `luaSelfGetPos`, etc.) preventing segmentation faults when players disconnect during dialogues.
+  * Added safe property extraction and null checks for all XML entity readers (houses, spawns, and accounts).
+
+* **Memory Leak Remediation:**
+  * Systematically deallocated all `libxml2` dynamic properties (`xmlFreeOTSERV`) in `houses.cpp`, `ioplayerxml.cpp`, and `npc.cpp`.
+  * Proper memory reclamation via `FreeThing` for items removed or consumed from containers and player inventories.
+  * Array bounds validation and memory cleanup in VIP list loading.
 
 ---
 
