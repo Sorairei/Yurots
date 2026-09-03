@@ -59,42 +59,41 @@
 
 ## [ Quick Start & Installation ]
 
-### 1. Prerequisites (Ubuntu / Debian)
-Ensure you have `git` installed:
-```bash
-sudo apt update && sudo apt install -y git
-```
+### Option A: Linux (Ubuntu / Debian / Cloud)
 
-### 2. Clone the Repository
-```bash
-git clone https://github.com/Sorairei/Yurots.git
-cd Yurots
-```
+1. **Install Prerequisites:**
+   ```bash
+   sudo apt update && sudo apt install -y git
+   ```
 
-### 3. Build the Server
-Run the automated build script:
-```bash
-chmod +x build_ubuntu.sh
-sudo bash build_ubuntu.sh
-```
+2. **Clone & Build:**
+   ```bash
+   git clone https://github.com/Sorairei/Yurots.git
+   cd Yurots
+   chmod +x build_ubuntu.sh
+   sudo bash build_ubuntu.sh
+   ```
 
-### 4. Configure & Start
-Edit your server configuration:
-```bash
-nano config.lua
-```
-Set your server IP or domain name:
-```lua
--- Can be numeric IP (e.g., "198.51.100.1") or domain name (e.g., "your-server.ddns.net")
-ip = "your-server.ddns.net"
-port = "7171"
-servername = "YurOTS"
-```
+3. **Configure & Start:**
+   Edit [config.lua](file:///e:/Github/Yurots/config.lua) and run `./yurots`.
 
-Start the engine:
-```bash
-./yurots
-```
+---
+
+### Option B: Microsoft Windows (MSYS2 / MinGW-w64)
+
+1. **Install Prerequisites:**
+   Install [MSYS2](https://www.msys2.org/) or run in PowerShell: `winget install MSYS2.MSYS2`.
+   In MSYS2 MINGW64 terminal, run:
+   ```bash
+   pacman -Syu --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-make mingw-w64-x86_64-boost mingw-w64-x86_64-libxml2
+   ```
+
+2. **Build Server:**
+   Double-click [build_windows.bat](file:///e:/Github/Yurots/build_windows.bat) or run from Command Prompt.
+
+3. **Configure & Start:**
+   Edit [config.lua](file:///e:/Github/Yurots/config.lua) and double-click [start_windows.bat](file:///e:/Github/Yurots/start_windows.bat).
+   *(For detailed instructions, see the [Windows Build Guide](file:///e:/Github/Yurots/docs/windows_build_guide.md)).*
 
 ---
 
@@ -175,8 +174,14 @@ Talk to the **Guild Master** NPC using the following keywords:
 
 ```
 Yurots/
-|-- build_ubuntu.sh          # Auto-detecting automated build script
+|-- build_ubuntu.sh          # Auto-detecting build script for Linux (Ubuntu/Debian)
+|-- build_windows.bat        # Automated build script for Windows (MinGW-w64/MSYS2)
+|-- start_windows.bat        # Windows launcher & auto-restarter on crash
+|-- CMakeLists.txt           # Multi-platform CMake build configuration
 |-- config.lua               # Global server configuration file
+|-- docs/
+|   |-- license.txt          # GPL v2 license document
+|   `-- windows_build_guide.md # Step-by-step Windows build & setup guide
 |-- data/
 |   |-- accounts/            # XML account data files
 |   |-- actions/             # Action scripts and configuration
@@ -187,7 +192,8 @@ Yurots/
 |   |-- spells/              # Spells configuration and scripts
 |   `-- world/               # OTBM map, spawns, and NPC world placements
 `-- source/
-    |-- Makefile             # Modernized, colorized GNU Makefile
+    |-- Makefile             # Modernized Linux Makefile
+    |-- Makefile.windows     # Windows MinGW-w64 Makefile
     |-- otserv.cpp           # Core server runtime and network loop
     `-- ...                  # Server subsystems (game, map, player, etc.)
 ```
